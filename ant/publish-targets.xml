@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<project name="publish-targets" basedir=".." xmlns:ivy="antlib:org.apache.ivy.ant">
+  <property name="ivy.file" value="${basedir}/ivy.xml"/>
+
+  <target name="publish" depends="dist"
+    description="Publishes modules locally">
+
+    <antcall target="publish.to">
+      <param name="resolver" value="local"/>
+      <param name="version" value="${app.version}"/>
+    </antcall>
+
+  </target>
+
+  <target name="publish.to">
+    <property name="revision" value="${version}"/>
+
+    <echo message="Publishing ${version} to ${resolver}"/>
+    <ivy:resolve file="${ivy.file}"/>
+
+    <ivy:publish resolver="${resolver}" pubrevision="${version}" forcedeliver="true">
+      <!-- <artifact pattern="[artifact]-[revision].[ext]"/> -->
+
+      <artifacts pattern="${dist.lib}/[artifact].[ext]"/>
+    </ivy:publish>
+
+    <echo message="project ${ant.project.name} published to ${resolver} with version ${version}"/>
+  </target>
+</project>
+

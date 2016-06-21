@@ -1,0 +1,12 @@
+<project name="ivy-targets" basedir=".." xmlns:ivy="antlib:org.apache.ivy.ant">
+    <!-- retrieve dependencies -->
+    <target name="ivy.resolve">
+        <!-- <ivy:retrieve pattern="lib/[conf]/[artifact](-[classifier])-[revision].[ext]"/> -->
+        <ivy:retrieve pattern="lib/[conf]/[artifact](-[classifier])-[revision].[ext]"/>
+    </target>
+
+    <!-- clean ivy cache -->
+    <target name="ivy.clear" depends="clean">
+        <ivy:cleancache />
+    </target>
+</project>

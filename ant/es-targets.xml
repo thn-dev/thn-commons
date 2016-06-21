@@ -1,0 +1,123 @@
+<!--
+*
+* Author: Tri H. Nguyen
+*
+-->
+<project name="es-targets" basedir="..">
+    <!-- =================================================================== -->
+    <!-- Properties                                                          -->
+    <!-- =================================================================== -->
+    <property name="es.name" value="es"/>
+    <property name="es.package.path" value="${src.package.path}/ws/es"/>
+    <property name="es.package.name" value="${src.package.name}.ws.es"/>
+
+    <!-- =================================================================== -->
+    <!-- deploy.cmd.es target                                                -->
+    <!-- =================================================================== -->
+    <target name="deploy.cmd.es" depends="dist.es"
+            description="Creates command-line application">
+
+        <property name="deploy.es" value="${deploy}/es"/>
+        <mkdir dir="${deploy.es}"/>
+
+        <!-- copy files to deploy/cmd/es location -->
+        <copy todir="${deploy.es}/config" >
+            <fileset dir="${config}">
+                <include name="log4j.xml" />
+            </fileset>
+        </copy>
+
+        <copy todir="${deploy.es}/bin" >
+            <fileset dir="${bin}/${es.name}">
+                <include name="es_setenv.cmd" />
+            </fileset>
+        </copy>
+
+        <!-- copy files to deploy/cmd/es/lib location -->
+        <copy todir="${deploy.es}/lib" >
+            <fileset dir="${dist.lib}">
+                <include name="${es.name}.jar" />
+                <include name="${ant.project.name}_libs.jar" />
+            </fileset>
+        </copy>
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- dist.es target                                                      -->
+    <!-- =================================================================== -->
+    <target name="dist.es" depends="dist">
+        <jar jarfile="${dist.lib}/${es.name}.jar" basedir="${build.classes}">
+            <include name="${es.package.path}/Hello.class" />
+        </jar>
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- deploy.test.es target                                               -->
+    <!-- =================================================================== -->
+    <target name="deploy.test.es" depends="dist.test.es"
+            description="Deploy applications for testing"
+    >
+        <property name="deploy.test.es" value="${deploy.test}/es"/>
+        <mkdir dir="${deploy.test.es}"/>
+
+        <!-- copy files to deploy/test/es location -->
+        <copy todir="${deploy.test.es}/config" >
+            <fileset dir="${config}">
+                <include name="log4j.xml" />
+            </fileset>
+        </copy>
+
+        <copy todir="${deploy.test.es}/bin" >
+            <fileset dir="${bin}/${es.name}">
+                <include name="es_test.cmd" />
+            </fileset>
+        </copy>
+
+        <!-- copy JAR files to deploy/test/es/lib location -->
+        <copy todir="${deploy.test.es}/lib" >
+            <fileset dir="${dist.lib}">
+                <include name="${es.name}.jar" />
+                <include name="${es.name}_test.jar" />
+                <include name="${ant.project.name}_libs.jar" />
+            </fileset>
+        </copy>
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- dist.test.es target                                                 -->
+    <!-- =================================================================== -->
+    <target name="dist.test.es" depends="dist.test">
+
+        <!-- build JAR file needed for testing -->
+        <jar jarfile="${dist.lib}/${es.name}.jar" basedir="${build.classes}">
+            <include name="${es.package.path}/Hello.class" />
+        </jar>
+
+        <!-- build JAR file required for testing -->
+        <jar jarfile="${dist.lib}/${es.name}_test.jar" basedir="${build.test}">
+            <include name="${es.package.path}/HelloTest.class" />
+        </jar>
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- test.cmd.es target                                                  -->
+    <!-- =================================================================== -->
+    <path id="es.classpath">
+        <pathelement location="${config}"/>
+        <pathelement location="${dist.lib}/${es.name}.jar"/>
+        <pathelement location="${dist.lib}/${es.name}_test.jar"/>
+        <pathelement location="${dist.lib}/${ant.project.name}_libs.jar"/>
+    </path>
+
+    <!-- test.cmd.es target -->
+    <target name="test.cmd.es" depends="dist.test.es"
+        description="Tests Hello module"
+    >
+        <junit>
+            <classpath refid="es.classpath" />
+            <formatter type="brief" usefile="false" />
+            <test name="${es.package.name}.HelloTest" />
+        </junit>
+    </target>
+
+</project>
